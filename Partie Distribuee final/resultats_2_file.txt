@@ -1,0 +1,44 @@
+macbook-air:Partie Distribuee final mathieulesur$ ./server 7000 7000 2
+PrintQueue : 
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg4 time=1232 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+> Front : {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg4 time=1232 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg4 time=1232 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg5 time=1233 port=4443 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+> Dequeue : {[type=requete] msg=msg1 time=1231 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg4 time=1232 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg5 time=1233 port=4443 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+> Dequeue : {[type=requete] msg=msg4 time=1232 port=4444 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg5 time=1233 port=4443 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}
+> Front : {[type=requete] msg=msg5 time=1233 port=4443 nb_confirmation_sites=1}
+PrintQueue : 
+- {[type=requete] msg=msg5 time=1233 port=4443 nb_confirmation_sites=1}
+- {[type=requete] msg=msg2 time=1233 port=4444 nb_confirmation_sites=1}
+- {[type=requete] msg=msg3 time=1234 port=4444 nb_confirmation_sites=1}

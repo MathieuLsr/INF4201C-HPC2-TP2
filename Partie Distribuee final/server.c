@@ -241,7 +241,7 @@ void WaitSync(int s_ecoute) {
   int l;
   int s_service;
   struct sockaddr_in sock_add_dist;
-  int size_sock;
+  size_t size_sock;
   size_sock=sizeof(struct sockaddr_in);
   printf("WaitSync : ");fflush(0);
   s_service=accept(s_ecoute,(struct sockaddr*) &sock_add_dist,&size_sock);
@@ -289,6 +289,9 @@ void SendSync(char *Site, int Port) {
   close (s_emis); 
 }
 
+/**
+ * Pour se connecter à une socket puis envoyer un message
+ */
 int SendSocket(char* Site, int Port, char* text){
   struct hostent* hp;
   int s_emis;
@@ -319,15 +322,15 @@ int SendSocket(char* Site, int Port, char* text){
     exit(-1);
   }
      
-  printf("Written : %s\n", text) ;
   longtxt =strlen(text);
+  //printf("Written : %s, Envoie : %d, strlen : %d\n", text, Port, longtxt) ;
   /*Emission d'un message de synchro*/
   l=write(s_emis,text,longtxt);
   return s_emis ;
 }
 
 #define TEST
-#define SLEEP_TIME 1
+#define SLEEP_TIME 3
 //#define TEST_QUEUE
 
 /***********************************************************************/
@@ -339,8 +342,9 @@ int main (int argc, char* argv[]) {
 
   bool actived = FAUX ;
 
-  
-
+  /**
+   * Pour nos tests de file d'attente
+   */
   #ifdef TEST_QUEUE
     struct Queue* q = createQueue() ;
     PrintQueue(q) ;
@@ -393,11 +397,11 @@ int main (int argc, char* argv[]) {
 
     return 0 ;
   #endif
-
+  
 
 
   struct sockaddr_in sock_add, sock_add_dist;
-  int size_sock;
+  size_t size_sock;
   int s_ecoute, s_service;
   char texte[40];
   int i,l;
@@ -472,12 +476,9 @@ int main (int argc, char* argv[]) {
   printf("===============================\n\n") ;
   printf("NSites = %d\n", NSites) ;
   printf("Mon port (PortBase) = %d\n", PortBase) ;
-  printf("Port defaut (Port_Site) = %d\n\n", Port_Site) ;
+  printf("Port defaut (Port_Site) = %d\n", Port_Site) ;
+  printf("\n") ;
   printf("Mon PID = %d\n", getpid()) ;
-
-
-
-
   printf("===============================\n\n") ;
 
   /* Boucle infini*/
@@ -485,32 +486,52 @@ int main (int argc, char* argv[]) {
   
     /* On commence par tester l'arrivée d'un message */
     s_service=accept(s_ecoute,(struct sockaddr*) &sock_add_dist,&size_sock);
+    
+    l=read(s_service,texte,500);
+    texte[l] ='\0';
+    
+    /* DEBUG */
+    /*
+    printf("s_service = %d, text = %s, size_sock : %d\n", s_service, texte, size_sock) ;
+    sleep(1) ;
+    continue ;
+    */
+    /*****************************/
 
     int random = rand() % 10 ; 
 
+    /**
+     * S'il y a un message en attente
+     */
     if(queueIsEmpty(queue) == FAUX){
         
+        // Récupère le message en haut de la liste
         struct Message message ; 
         struct Message* msg = queueFront(queue, &message) ;
 
-        
+        // Si ça provient de mon port
         if(msg->port == PortBase){
 
+          // Si je n'ai pas toutes les accords des autres sites
           if(msg->nb_reponse_valide != NSites){
             printf("[Attente] En attente des validations des autres ports. (%d/%d)\n", message.nb_reponse_valide, NSites) ;
           }
+          // Si tout le monde est OK : Section critique
           else{
             dequeue(queue, msg) ;
             printf("[MA SECTION CRITIQUE] /!\\ Exécution de ma SC.\n") ;
 
+            /* SECTION CRITIQUE */
             int t = 15 ;
             for(int k=0 ; k<10000000 ; k++){
               t = k*3 ;
               t = k/3 ;
             }
+            /*****************************/
+            
 
+            // Envoie "liberation" à tous les autres sites
             for(int k=0 ; k < NSites ; k++){
-              // Envoie "requete" à tous les autres sites
               
               int socket_fd = -1 ;
               int Port_A_Envoyer = Port_Site + k ;
@@ -523,15 +544,16 @@ int main (int argc, char* argv[]) {
                 MessageToString(&msg_reponse, buffer_reponse) ;
                 SendSocket("localhost", Port_A_Envoyer, buffer_reponse) ;
                 printf("[FIN SC] Libération du jeton SC pour le port %d.\n", Port_A_Envoyer) ;
-                printf("> %s\n", buffer_reponse) ;
               }
-            }
+            } /*****************************/
 
           }
 
         }
 
+        // Si c'est pas le port qui execute la SC
         else{
+          // On peut traiter le message si besoin (afficher ici)
           if(msg->has_been_sent == FAUX){
             struct Message msg_reponse ;
             initMessage(&msg_reponse, "reponse", "-", time(NULL), PortBase, NSites) ;
@@ -539,19 +561,23 @@ int main (int argc, char* argv[]) {
             MessageToString(&msg_reponse, buffer_reponse) ;
             SendSocket("localhost", msg->port, buffer_reponse) ;
             msg->has_been_sent = VRAI ;
+            printf("[SC] Envoie de mon accord pour la SC du port %d (%s)\n", msg->port, msg->message) ;
           }
-          printf("[SC] En cours d'execution de la SC du port %d (%s)\n", msg->port, msg->message) ;
+          // Puis affichage qu'une SC est en cours sur un autre port
+          else printf("[SC] En cours d'execution de la SC du port %d (%s)\n", msg->port, msg->message) ;
         }
 
     }
     else printf(".\n") ;
 
-    #ifdef TEST
-      if(PortBase == 7000 && actived == FAUX) {
-        actived = VRAI ;
-    #else
-      if(random == 0){
-    #endif
+// Pour nos tests et activer une SC dès le début et 1 seule fois
+#ifdef TEST
+    if(PortBase == 7000 && actived == FAUX) {
+      actived = VRAI ;
+#else
+    if(random == 0){
+#endif
+/*****************************/
 
       int Port_Site = atoi(argv[1]) ;
       printf("[Requete] Envoie des requetes pour ma SC.\n") ;
@@ -559,6 +585,7 @@ int main (int argc, char* argv[]) {
       struct Message msg ;
       char buffer[500] ;
 
+      /* Formatage de la requete */
       char str_requete[500] ;
       char integer_string[32];
       int integer = (int) getpid() ;
@@ -566,64 +593,73 @@ int main (int argc, char* argv[]) {
       strcpy(str_requete, "[PID = ") ;
       strcat(str_requete, integer_string);
       strcat(str_requete, "] Section critique");
+      /*****************************/
 
+
+      
+      /* Initialisation du message & insertion dans la file d'attente */
       initMessage(&msg, "requete", str_requete, time(NULL), PortBase, NSites) ;
       enqueue(queue, &msg) ;
       MessageToString(&msg, buffer) ;
+      /*****************************/
 
+      /* Envoie à tous les autres sites */
       for(int k=0 ; k < NSites ; k++){
-
         int socket_fd = -1 ;
         int Port_A_Envoyer = Port_Site + k ;
 
         if(PortBase == Port_A_Envoyer) continue ;
-        else socket_fd = SendSocket("localhost", Port_A_Envoyer, buffer) ;
-        
+        socket_fd = SendSocket("localhost", Port_A_Envoyer, buffer) ;
       }
+      /*****************************/
     
     }
-
-    printf("1.0\n") ;
     
     if (s_service>0) {
       /*Extraction et affichage du message */
-      printf("2.0\n") ;
       l=read(s_service,texte,500);
       texte[l] ='\0';
 
-      printf("3.0\n") ;
-
+      /**
+       * Copie pour garder le texte initial par défaut 
+       */
       char text_copy[500];
       strcpy(text_copy, texte) ;
 
       struct Message message ;
       MessageInitString(&message, text_copy) ;
 
+      /**
+       * Traitement de message de type requete
+       */
       if(prefix("requete", message.type)){
         enqueue(queue, &message) ;
-        printf("[Requete] SC demandée par %d\n", message.port) ;
+        printf("[Requete] SC demandée par %d (socket_service = %d)\n", message.port, s_service) ;
       }
 
+      /**
+       * Traitement de message de type reponse
+       */
       else if(prefix("reponse", message.type)){
         struct Message message_buff ; 
         struct Message* msg = queueFront(queue, &message_buff) ;
         msg->nb_reponse_valide++ ;
-        printf("[Reponse] Le port %d a répondu (%d/%d)\n", message.port, msg->nb_reponse_valide, NSites) ;
+        printf("[Reponse] Le port %d a répondu (%d/%d) (socket_service = %d)\n", message.port, msg->nb_reponse_valide, NSites, s_service) ;
       }
 
+      /**
+       * Traitement de message de type liberation
+       */
       else if(prefix("liberation", message.type)){
         struct Message msg ; 
         dequeue(queue, &msg) ;
-        printf("[Libération] Fin de la section critique du port %d.\n", message.port) ;
+        printf("[Libération] Fin de la section critique du port %d. (socket_service = %d)\n", message.port, s_service) ;
       }
 
-      fflush(0);
       close (s_service);
     }
 
     sleep(SLEEP_TIME) ;
-    //printf(" ");
-    close (s_service);
     fflush(0); /* pour montrer que le serveur est actif*/
   }
 
