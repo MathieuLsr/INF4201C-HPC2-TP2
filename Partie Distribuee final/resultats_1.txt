@@ -1,0 +1,126 @@
+Console 1 :
+
+macbook-air:Partie Distribuee final mathieulesur$ ./server 7000 7000 3
+Numero de port de ce site 7000
+WaitSync : **SYNCHRO**
+WaitSync : **SYNCHRO**
+Site 0 : toutes les synchros des autres sites recues 
+===============================
+
+NSites = 3
+Mon port (PortBase) = 7000
+Port defaut (Port_Site) = 7000
+
+Mon PID = 28286
+===============================
+
+.
+.
+.
+.
+.
+.
+[Requete] SC demandée par 7002
+[SC] En cours d'execution de la SC du port 7002
+[Requete] SC demandée par 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[Libération] Fin de la section critique du port 7002.
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[Libération] Fin de la section critique du port 7002.
+.
+.
+.
+.
+.
+^C
+
+
+
+
+Console 2 :
+
+macbook-air:Partie Distribuee final mathieulesur$ ./server 7000 7001 3
+Numero de port de ce site 7001
+Wait Synchro du Site 0
+WaitSync : **SYNCHRO**
+Synchro recue de  Site 0
+===============================
+
+NSites = 3
+Mon port (PortBase) = 7001
+Port defaut (Port_Site) = 7000
+
+Mon PID = 28287
+===============================
+
+.
+.
+.
+.
+.
+.
+[Requete] SC demandée par 7002
+[SC] En cours d'execution de la SC du port 7002
+[Requete] SC demandée par 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[Libération] Fin de la section critique du port 7002.
+[SC] En cours d'execution de la SC du port 7002
+[SC] En cours d'execution de la SC du port 7002
+[Libération] Fin de la section critique du port 7002.
+.
+.
+.
+.
+.
+^C
+
+
+
+
+Console 3 :
+
+macbook-air:Partie Distribuee final mathieulesur$ ./server 7000 7002 3
+Numero de port de ce site 7002
+Wait Synchro du Site 0
+WaitSync : **SYNCHRO**
+Synchro recue de  Site 0
+===============================
+
+NSites = 3
+Mon port (PortBase) = 7002
+Port defaut (Port_Site) = 7000
+
+Mon PID = 28292
+===============================
+
+.
+.
+.
+.
+.
+[Requete] Envoie des requetes pour ma SC.
+[Attente] En attente des validations des autres ports. (1/3)
+[Requete] Envoie des requetes pour ma SC.
+[Attente] En attente des validations des autres ports. (1/3)
+[Attente] En attente des validations des autres ports. (1/3)
+[Reponse] Le port 7000 a répondu (2/3)
+[Attente] En attente des validations des autres ports. (2/3)
+[Reponse] Le port 7001 a répondu (3/3)
+[MA SECTION CRITIQUE] /!\ Exécution de ma SC.
+[FIN SC] Libération du jeton SC.
+[MA SECTION CRITIQUE] /!\ Exécution de ma SC.
+[FIN SC] Libération du jeton SC.
+.
+.
+.
+.
+.
+.
+^C
